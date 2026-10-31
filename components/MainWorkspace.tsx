@@ -143,64 +143,82 @@ export const MainWorkspace: React.FC<MainWorkspaceProps> = ({
 
   return (
     <section aria-label="Unified Cue Card Workspace" className="space-y-5">
+    <section aria-label="Unified Cue Card Workspace" className="space-y-5">
       {/* ================= 1. Top Control Bar & View Switcher ================= */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-2.5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         {/* View Switcher Tabs */}
         <div
           role="tablist"
           aria-label="Workspace views"
-          className="flex items-center gap-1 overflow-x-auto p-1 bg-slate-100 rounded-xl"
+          className="flex items-center gap-1.5 overflow-x-auto p-1 bg-slate-100 rounded-xl"
         >
           <button
             role="tab"
             aria-selected={activeTab === 'this_week'}
             onClick={() => setActiveTab('this_week')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-blue-600 ${
+            className={`px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-blue-600 flex items-center gap-2 ${
               activeTab === 'this_week'
                 ? 'bg-white text-blue-700 shadow-sm'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            This Week's Deck ({tabCounts.thisWeek})
+            <span>⚡ Focus Deck</span>
+            <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+              activeTab === 'this_week' ? 'bg-blue-100 text-blue-800' : 'bg-slate-200/80 text-slate-600'
+            }`}>
+              {tabCounts.thisWeek}
+            </span>
           </button>
 
           <button
             role="tab"
             aria-selected={activeTab === 'all_active'}
             onClick={() => setActiveTab('all_active')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-blue-600 ${
+            className={`px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-blue-600 flex items-center gap-2 ${
               activeTab === 'all_active'
                 ? 'bg-white text-blue-700 shadow-sm'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            All Active ({tabCounts.active})
+            <span>📋 All Active</span>
+            <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+              activeTab === 'all_active' ? 'bg-blue-100 text-blue-800' : 'bg-slate-200/80 text-slate-600'
+            }`}>
+              {tabCounts.active}
+            </span>
           </button>
 
           <button
             role="tab"
             aria-selected={activeTab === 'calendar'}
             onClick={() => setActiveTab('calendar')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-blue-600 ${
+            className={`px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-blue-600 flex items-center gap-1.5 ${
               activeTab === 'calendar'
                 ? 'bg-white text-blue-700 shadow-sm'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            Calendar View
+            <Calendar className="w-4 h-4 text-blue-600" />
+            <span>Timeline</span>
           </button>
 
           <button
             role="tab"
             aria-selected={activeTab === 'expired'}
             onClick={() => setActiveTab('expired')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-blue-600 ${
+            className={`px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-blue-600 flex items-center gap-2 ${
               activeTab === 'expired'
-                ? 'bg-white text-slate-800 shadow-sm'
+                ? 'bg-white text-slate-900 shadow-sm'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            Expired ({tabCounts.expired})
+            <Archive className="w-4 h-4" />
+            <span>Archive</span>
+            <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+              activeTab === 'expired' ? 'bg-slate-200 text-slate-800' : 'bg-slate-200/80 text-slate-600'
+            }`}>
+              {tabCounts.expired}
+            </span>
           </button>
         </div>
 
@@ -209,64 +227,58 @@ export const MainWorkspace: React.FC<MainWorkspaceProps> = ({
           type="button"
           onClick={onResetSeed}
           aria-label="Reload default seed deck"
-          className="text-xs text-slate-500 hover:text-slate-800 px-3 py-1.5 rounded-lg hover:bg-slate-50 transition-colors self-end sm:self-auto focus:outline-none focus:ring-2 focus:ring-blue-600"
+          className="text-xs sm:text-sm font-medium text-slate-500 hover:text-slate-800 px-3 py-1.5 rounded-lg hover:bg-slate-50 transition-colors self-end sm:self-auto focus:outline-none focus:ring-2 focus:ring-blue-600 flex items-center gap-1.5"
         >
-          Reset Seed Data
+          <span>Reset Sample Data</span>
         </button>
       </div>
 
-      {/* ================= 2. Minimal Filter Strip ================= */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-3 space-y-2.5">
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+      {/* ================= 2. Refined Studio Filter Bar ================= */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-3.5 space-y-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           {/* Search Input */}
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by event title, venue, rules, or summary..."
               aria-label="Search notices"
-              className="w-full pl-9 pr-8 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all"
+              className="w-full pl-10 pr-9 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
                 aria-label="Clear search query"
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
               >
-                <X className="w-3.5 h-3.5" />
+                <X className="w-4 h-4" />
               </button>
             )}
           </div>
 
-          {/* Priority Pill Filters */}
-          <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0">
-            {['All', 'Urgent', 'Upcoming', 'Undated', 'Expired'].map((p) => {
-              const isSelected = selectedPriority === p;
-              return (
-                <button
-                  key={p}
-                  type="button"
-                  onClick={() => setSelectedPriority(p)}
-                  aria-pressed={isSelected}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-blue-600 ${
-                    isSelected
-                      ? 'bg-blue-600 text-white font-semibold'
-                      : 'bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200/80'
-                  }`}
-                >
-                  {p}
-                </button>
-              );
-            })}
+          {/* Clean Status Filter Dropdown */}
+          <div className="flex items-center gap-2">
+            <select
+              value={selectedPriority}
+              onChange={(e) => setSelectedPriority(e.target.value)}
+              aria-label="Filter notices by priority status"
+              className="px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-600 transition-colors cursor-pointer"
+            >
+              <option value="All">All Priorities</option>
+              <option value="Urgent">🔥 Urgent Only</option>
+              <option value="Upcoming">📅 Upcoming Only</option>
+              <option value="Undated">⏳ Undated Only</option>
+              <option value="Expired">📦 Expired Only</option>
+            </select>
           </div>
         </div>
 
-        {/* Category Pill Filters */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-          <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mr-1">
+        {/* Clean Category Pill Filters */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-0.5 scrollbar-thin">
+          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider shrink-0 mr-1">
             Category:
           </span>
           {CATEGORIES.map((cat) => {
@@ -277,9 +289,9 @@ export const MainWorkspace: React.FC<MainWorkspaceProps> = ({
                 type="button"
                 onClick={() => setSelectedCategory(cat.id)}
                 aria-pressed={isSelected}
-                className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium transition-colors whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-blue-600 ${
+                className={`px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-blue-600 shrink-0 ${
                   isSelected
-                    ? 'bg-slate-900 text-white'
+                    ? 'bg-blue-600 text-white font-semibold shadow-sm shadow-blue-500/20'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900'
                 }`}
               >

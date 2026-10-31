@@ -13,8 +13,8 @@ export interface CompressedImageResult {
 
 export function compressImageFile(
   file: File,
-  maxWidth = 800,
-  quality = 0.7
+  maxDimension = 1400,
+  quality = 0.88
 ): Promise<CompressedImageResult> {
   return new Promise((resolve, reject) => {
     if (!file.type.startsWith('image/')) {
@@ -30,11 +30,15 @@ export function compressImageFile(
         try {
           let { width, height } = img;
 
-          // Scale down if width exceeds maxWidth
-          if (width > maxWidth) {
-            const scale = maxWidth / width;
-            width = maxWidth;
-            height = Math.round(height * scale);
+          // Scale down proportionally if either width or height exceeds maxDimension
+          if (width > maxDimension || height > maxDimension) {
+            if (width >= height) {
+              height = Math.round((height * maxDimension) / width);
+              width = maxDimension;
+            } else {
+              width = Math.round((width * maxDimension) / height);
+              height = maxDimension;
+            }
           }
 
           const canvas = document.createElement('canvas');

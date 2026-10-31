@@ -54,6 +54,7 @@ export const AssistantSidebar: React.FC<AssistantSidebarProps> = ({
   ]);
 
   const [inputText, setInputText] = useState('');
+  const [imageFileName, setImageFileName] = useState<string>('');
   const [compressedImage, setCompressedImage] = useState<CompressedImageResult | null>(null);
   const [isCompressing, setIsCompressing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -73,11 +74,12 @@ export const AssistantSidebar: React.FC<AssistantSidebarProps> = ({
     if (!file) return;
 
     setIsCompressing(true);
+    setImageFileName(file.name);
     try {
-      const result = await compressImageFile(file, 800, 0.7);
+      const result = await compressImageFile(file, 1400, 0.88);
       setCompressedImage(result);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to compress image';
+      const msg = err instanceof Error ? err.message : 'Failed to process image';
       addErrorMessage(msg);
     } finally {
       setIsCompressing(false);
@@ -86,6 +88,7 @@ export const AssistantSidebar: React.FC<AssistantSidebarProps> = ({
 
   const clearImage = () => {
     setCompressedImage(null);
+    setImageFileName('');
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -123,6 +126,7 @@ export const AssistantSidebar: React.FC<AssistantSidebarProps> = ({
 
     const submittedText = inputText.trim();
     const imagePayload = compressedImage;
+    const attachedName = imageFileName;
 
     // Add user message to stream
     const userMsgId = `user-${Date.now()}`;
@@ -132,7 +136,7 @@ export const AssistantSidebar: React.FC<AssistantSidebarProps> = ({
         id: userMsgId,
         sender: 'user',
         type: 'text',
-        text: submittedText || 'Uploaded an event poster image',
+        text: submittedText || (attachedName ? `📷 Attached event poster: ${attachedName}` : 'Uploaded an event poster image'),
         timestamp: 'Just now',
       },
     ]);
@@ -265,17 +269,18 @@ export const AssistantSidebar: React.FC<AssistantSidebarProps> = ({
     >
       {/* ================= Top Header ================= */}
       <div className="p-4 border-b border-slate-100 flex items-center justify-between gap-3 bg-white/80 backdrop-blur-sm z-10">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-sm shadow-blue-500/20">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-base shadow-sm shadow-blue-500/20 shrink-0">
             CP
           </div>
           <div>
-            <h2 className="text-sm font-bold text-slate-900 tracking-tight leading-none">
+            <h2 className="text-base font-bold text-slate-900 tracking-tight leading-tight">
               Campus Pulse
             </h2>
-            <span className="text-[11px] text-slate-400 font-medium">
-              AI Assistant
-            </span>
+            <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-medium">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span>AI Assistant Ready</span>
+            </div>
           </div>
         </div>
 
@@ -285,16 +290,16 @@ export const AssistantSidebar: React.FC<AssistantSidebarProps> = ({
           onClick={handleWeeklySummary}
           disabled={isGeneratingWeekly}
           aria-label="Generate weekly campus digest"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-all shadow-sm shadow-blue-600/20 active:scale-95 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-600"
+          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-all shadow-sm shadow-blue-600/20 active:scale-95 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-600"
         >
-          <Sparkles className="w-3 h-3 text-blue-200" />
+          <Sparkles className="w-3.5 h-3.5 text-blue-200" />
           <span className="whitespace-nowrap">What do I need to know this week?</span>
         </button>
       </div>
 
       {/* ================= Middle Message Stream ================= */}
       <div
-        className="flex-1 overflow-y-auto p-4 space-y-3.5 text-xs text-slate-800"
+        className="flex-1 overflow-y-auto p-4 space-y-4 text-sm text-slate-800"
         tabIndex={0}
         aria-label="Assistant message stream"
       >
@@ -304,31 +309,31 @@ export const AssistantSidebar: React.FC<AssistantSidebarProps> = ({
             className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}
           >
             {msg.sender === 'assistant' && (
-              <span className="text-[10px] font-semibold text-slate-400 mb-1 ml-1 flex items-center gap-1">
-                <Sparkles className="w-2.5 h-2.5 text-blue-600" /> Pulse Assistant
+              <span className="text-xs font-semibold text-slate-400 mb-1.5 ml-1 flex items-center gap-1">
+                <Sparkles className="w-3 h-3 text-blue-600" /> Pulse Assistant
               </span>
             )}
 
             {/* User message bubble */}
             {msg.sender === 'user' && (
-              <div className="max-w-[85%] bg-blue-600 text-white p-3 rounded-2xl rounded-tr-sm shadow-sm font-normal text-xs whitespace-pre-wrap">
+              <div className="max-w-[85%] bg-blue-600 text-white p-3.5 rounded-2xl rounded-tr-sm shadow-sm font-normal text-sm leading-relaxed whitespace-pre-wrap">
                 {msg.text}
               </div>
             )}
 
             {/* Assistant Text bubble */}
             {msg.sender === 'assistant' && msg.type === 'text' && (
-              <div className="max-w-[90%] bg-slate-50 border border-slate-200/80 p-3.5 rounded-2xl rounded-tl-sm text-slate-700 leading-relaxed shadow-sm">
+              <div className="max-w-[90%] bg-slate-50 border border-slate-200/90 p-4 rounded-2xl rounded-tl-sm text-slate-800 leading-relaxed shadow-2xs text-sm space-y-2">
                 <p>{msg.text}</p>
 
                 {msg.id === 'welcome' && (
-                  <div className="mt-3 pt-2.5 border-t border-slate-200/60">
+                  <div className="mt-3 pt-3 border-t border-slate-200/60">
                     <button
                       type="button"
                       onClick={handleSampleNotice}
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600"
+                      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600"
                     >
-                      <Dice5 className="w-3 h-3 text-blue-600" />
+                      <Dice5 className="w-3.5 h-3.5 text-blue-600" />
                       Try Sample WhatsApp Notice
                     </button>
                   </div>
@@ -338,24 +343,24 @@ export const AssistantSidebar: React.FC<AssistantSidebarProps> = ({
 
             {/* Assistant Confirmation Card */}
             {msg.type === 'confirmation' && msg.notice && (
-              <div className="w-full bg-white border border-blue-200/90 rounded-2xl p-3.5 shadow-sm space-y-2">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-blue-700">
-                  <CheckCircle2 className="w-4 h-4 text-blue-600" />
+              <div className="w-full bg-white border border-blue-200 rounded-2xl p-4 shadow-sm space-y-2.5">
+                <div className="flex items-center gap-2 text-sm sm:text-base font-bold text-blue-700">
+                  <CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0" />
                   <span>Extracted: {msg.notice.title}</span>
                 </div>
-                <p className="text-[11px] text-slate-600 line-clamp-2">
+                <p className="text-sm text-slate-700 leading-relaxed">
                   {msg.notice.summary}
                 </p>
-                <div className="flex items-center gap-2 text-[10px] text-slate-500 font-medium">
-                  <span className="px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200">
+                <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600 font-medium pt-1">
+                  <span className="px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-200 font-semibold">
                     {msg.notice.category}
                   </span>
                   <span>•</span>
-                  <span>{msg.notice.date || 'No date'}</span>
+                  <span className="font-semibold text-slate-800">{msg.notice.date || 'No date'}</span>
                   <span>•</span>
-                  <span>{msg.notice.venue}</span>
+                  <span className="truncate max-w-[150px]">{msg.notice.venue}</span>
                 </div>
-                <div className="text-[10px] text-emerald-600 font-semibold pt-1 border-t border-slate-100">
+                <div className="text-xs text-emerald-600 font-semibold pt-1.5 border-t border-slate-100 flex items-center gap-1.5">
                   ✓ Added to your 3D Cue Card Deck
                 </div>
               </div>
@@ -363,26 +368,26 @@ export const AssistantSidebar: React.FC<AssistantSidebarProps> = ({
 
             {/* Assistant Weekly Digest Card */}
             {msg.type === 'summary' && msg.summary && (
-              <div className="w-full bg-slate-50 border border-blue-200 rounded-2xl p-3.5 shadow-sm space-y-3">
-                <div className="flex items-center justify-between pb-1.5 border-b border-blue-200/60">
-                  <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                    <Flame className="w-3.5 h-3.5 text-blue-600" />
+              <div className="w-full bg-slate-50 border border-blue-200 rounded-2xl p-4 shadow-sm space-y-3.5">
+                <div className="flex items-center justify-between pb-2 border-b border-blue-200/60">
+                  <span className="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
+                    <Flame className="w-4 h-4 text-blue-600" />
                     This Week's Campus Digest
                   </span>
-                  <span className="text-[10px] text-blue-600 font-semibold uppercase tracking-wider">
+                  <span className="text-xs text-blue-600 font-semibold uppercase tracking-wider">
                     Synthesized
                   </span>
                 </div>
 
                 {/* Today Priorities */}
                 <div>
-                  <div className="text-[11px] font-bold text-rose-700 uppercase tracking-wider mb-1 flex items-center gap-1">
-                    <Zap className="w-3 h-3 text-rose-600" /> Immediate Priorities
+                  <div className="text-xs font-bold text-rose-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                    <Zap className="w-3.5 h-3.5 text-rose-600" /> Immediate Priorities
                   </div>
-                  <ul className="space-y-1 text-xs text-slate-700">
+                  <ul className="space-y-1.5 text-sm text-slate-700">
                     {msg.summary.todayPriorities.map((item, idx) => (
-                      <li key={idx} className="flex items-start gap-1.5">
-                        <span className="w-1 h-1 rounded-full bg-rose-500 mt-1.5 shrink-0" />
+                      <li key={idx} className="flex items-start gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-rose-500 mt-2 shrink-0" />
                         <span>{item}</span>
                       </li>
                     ))}
@@ -391,13 +396,13 @@ export const AssistantSidebar: React.FC<AssistantSidebarProps> = ({
 
                 {/* Upcoming Deadlines */}
                 <div>
-                  <div className="text-[11px] font-bold text-blue-700 uppercase tracking-wider mb-1 flex items-center gap-1">
-                    <Calendar className="w-3 h-3 text-blue-600" /> Upcoming Deadlines
+                  <div className="text-xs font-bold text-blue-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5 text-blue-600" /> Upcoming Deadlines
                   </div>
-                  <ul className="space-y-1 text-xs text-slate-700">
+                  <ul className="space-y-1.5 text-sm text-slate-700">
                     {msg.summary.upcomingDeadlines.map((item, idx) => (
-                      <li key={idx} className="flex items-start gap-1.5">
-                        <span className="w-1 h-1 rounded-full bg-blue-500 mt-1.5 shrink-0" />
+                      <li key={idx} className="flex items-start gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-2 shrink-0" />
                         <span>{item}</span>
                       </li>
                     ))}
@@ -406,13 +411,13 @@ export const AssistantSidebar: React.FC<AssistantSidebarProps> = ({
 
                 {/* Key Rules */}
                 <div>
-                  <div className="text-[11px] font-bold text-amber-700 uppercase tracking-wider mb-1 flex items-center gap-1">
-                    <ShieldCheck className="w-3 h-3 text-amber-600" /> Rules to Remember
+                  <div className="text-xs font-bold text-amber-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                    <ShieldCheck className="w-3.5 h-3.5 text-amber-600" /> Rules to Remember
                   </div>
-                  <ul className="space-y-1 text-xs text-slate-700">
+                  <ul className="space-y-1.5 text-sm text-slate-700">
                     {msg.summary.keyRulesToRemember.map((item, idx) => (
-                      <li key={idx} className="flex items-start gap-1.5">
-                        <span className="w-1 h-1 rounded-full bg-amber-500 mt-1.5 shrink-0" />
+                      <li key={idx} className="flex items-start gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-2 shrink-0" />
                         <span>{item}</span>
                       </li>
                     ))}
@@ -421,7 +426,7 @@ export const AssistantSidebar: React.FC<AssistantSidebarProps> = ({
 
                 {/* Motivational Tip */}
                 {msg.summary.motivationalAdvice && (
-                  <p className="text-[11px] text-blue-800 italic bg-blue-50 p-2 rounded-xl border border-blue-100">
+                  <p className="text-xs sm:text-sm text-blue-900 italic bg-blue-50/80 p-3 rounded-xl border border-blue-100">
                     "{msg.summary.motivationalAdvice}"
                   </p>
                 )}
@@ -433,7 +438,7 @@ export const AssistantSidebar: React.FC<AssistantSidebarProps> = ({
               <div
                 role="status"
                 aria-live="polite"
-                className="w-full bg-rose-50 border border-rose-200 text-rose-800 p-3 rounded-2xl text-xs space-y-2"
+                className="w-full bg-rose-50 border border-rose-200 text-rose-800 p-3.5 rounded-2xl text-sm space-y-2"
               >
                 <div className="flex items-start gap-2">
                   <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
@@ -443,9 +448,9 @@ export const AssistantSidebar: React.FC<AssistantSidebarProps> = ({
                   <button
                     type="button"
                     onClick={msg.retryAction}
-                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-700 hover:text-rose-900 underline focus:outline-none focus:ring-2 focus:ring-rose-500 rounded"
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-rose-700 hover:text-rose-900 underline focus:outline-none focus:ring-2 focus:ring-rose-500 rounded"
                   >
-                    <RotateCcw className="w-3 h-3" />
+                    <RotateCcw className="w-3.5 h-3.5" />
                     Retry extraction
                   </button>
                 )}
@@ -456,9 +461,9 @@ export const AssistantSidebar: React.FC<AssistantSidebarProps> = ({
 
         {/* Loading Indicator */}
         {(isLoading || isGeneratingWeekly) && (
-          <div className="flex items-center gap-2 text-xs text-slate-500 p-2">
+          <div className="flex items-center gap-2.5 text-sm text-slate-600 p-3 bg-slate-50 rounded-xl border border-slate-200/60 animate-pulse">
             <Loader2 className="w-4 h-4 text-blue-600 animate-spin" />
-            <span>
+            <span className="font-medium">
               {isGeneratingWeekly
                 ? 'Synthesizing weekly campus digest...'
                 : 'Extracting cue card details with Gemini...'}
@@ -470,27 +475,32 @@ export const AssistantSidebar: React.FC<AssistantSidebarProps> = ({
       </div>
 
       {/* ================= Bottom Input Dock ================= */}
-      <div className="p-3 border-t border-slate-100 bg-white">
+      <div className="p-3.5 border-t border-slate-100 bg-white">
         {/* Compressed image preview pill */}
         {compressedImage && (
-          <div className="mb-2 p-1.5 pl-2 pr-1 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between text-xs text-slate-700">
-            <div className="flex items-center gap-2 truncate">
+          <div className="mb-2.5 p-2 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between text-xs text-slate-700 shadow-2xs">
+            <div className="flex items-center gap-2.5 truncate">
               <img
                 src={compressedImage.base64}
                 alt="Selected poster"
-                className="w-6 h-6 object-cover rounded-lg border border-slate-200 shrink-0"
+                className="w-8 h-8 object-cover rounded-lg border border-slate-200 shrink-0"
               />
-              <span className="truncate text-[11px] text-slate-600">
-                Poster ready ({(compressedImage.compressedSizeBytes / 1024).toFixed(0)} KB)
-              </span>
+              <div className="truncate">
+                <p className="truncate font-semibold text-slate-800 text-xs">
+                  {imageFileName || 'Event Poster'}
+                </p>
+                <span className="text-[11px] text-slate-500 font-medium">
+                  Sharp OCR ready ({(compressedImage.compressedSizeBytes / 1024).toFixed(0)} KB)
+                </span>
+              </div>
             </div>
             <button
               type="button"
               onClick={clearImage}
               aria-label="Remove image"
-              className="p-1 text-slate-400 hover:text-rose-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
+              className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 focus:outline-none focus:ring-2 focus:ring-rose-500 transition-colors"
             >
-              <X className="w-3.5 h-3.5" />
+              <X className="w-4 h-4" />
             </button>
           </div>
         )}
@@ -513,12 +523,12 @@ export const AssistantSidebar: React.FC<AssistantSidebarProps> = ({
             disabled={isCompressing || isLoading}
             aria-label="Upload event poster image"
             title="Upload event poster image"
-            className="p-2 rounded-xl text-slate-500 hover:text-blue-600 hover:bg-slate-50 border border-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 disabled:opacity-50 shrink-0"
+            className="p-2.5 rounded-xl text-slate-500 hover:text-blue-600 hover:bg-slate-50 border border-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 disabled:opacity-50 shrink-0"
           >
             {isCompressing ? (
-              <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
+              <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
             ) : (
-              <ImageIcon className="w-4 h-4" />
+              <ImageIcon className="w-5 h-5" />
             )}
           </button>
 
@@ -538,7 +548,7 @@ export const AssistantSidebar: React.FC<AssistantSidebarProps> = ({
               maxLength={4000}
               placeholder="Paste notice text or forward..."
               aria-label="Paste notice text or forward"
-              className="w-full text-xs text-slate-900 placeholder:text-slate-400 bg-slate-50 border border-slate-200 rounded-xl p-2.5 pr-2 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white resize-none transition-all"
+              className="w-full text-sm text-slate-900 placeholder:text-slate-400 bg-slate-50 border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white resize-none transition-all"
             />
           </div>
 
@@ -548,12 +558,12 @@ export const AssistantSidebar: React.FC<AssistantSidebarProps> = ({
             disabled={isLoading || isCompressing || (!inputText.trim() && !compressedImage)}
             aria-label="Extract notice into cue card"
             title="Extract notice into cue card"
-            className="p-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white transition-all shadow-sm shadow-blue-600/20 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-600 shrink-0"
+            className="p-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white transition-all shadow-sm shadow-blue-600/20 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-600 shrink-0"
           >
             {isLoading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
-              <Send className="w-4 h-4" />
+              <Send className="w-5 h-5" />
             )}
           </button>
         </form>
@@ -561,3 +571,4 @@ export const AssistantSidebar: React.FC<AssistantSidebarProps> = ({
     </aside>
   );
 };
+

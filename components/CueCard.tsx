@@ -74,7 +74,7 @@ export const CueCard: React.FC<CueCardProps> = ({ notice, todayStr, onDelete }) 
       aria-label={`${notice.title}. Priority: ${priority.label}. ${isFlipped ? 'Card back shown. Press Enter or Space to flip back.' : 'Card front shown. Press Enter or Space to flip for summary and rules.'}`}
       onKeyDown={handleKeyDown}
       onClick={() => setIsFlipped((prev) => !prev)}
-      className="h-72 w-full perspective-1000 cursor-pointer select-none focus:outline-none focus:ring-2 focus:ring-blue-600 rounded-2xl group transition-all duration-300 hover:-translate-y-1"
+      className="h-80 w-full perspective-1000 cursor-pointer select-none focus:outline-none focus:ring-2 focus:ring-blue-600 rounded-2xl group transition-all duration-300 hover:-translate-y-1"
     >
       <div
         className={`relative w-full h-full transform-style-preserve-3d transition-transform duration-500 rounded-2xl ${
@@ -82,22 +82,22 @@ export const CueCard: React.FC<CueCardProps> = ({ notice, todayStr, onDelete }) 
         }`}
       >
         {/* ================= FRONT FACE ================= */}
-        <div className="absolute inset-0 backface-hidden w-full h-full bg-white rounded-2xl border border-slate-200/80 shadow-sm group-hover:shadow-md p-5 flex flex-col justify-between">
+        <div className="absolute inset-0 backface-hidden w-full h-full bg-white rounded-2xl border border-slate-200/90 shadow-sm group-hover:shadow-md p-5 flex flex-col justify-between">
           <div>
             {/* Top row: Category pill + Priority badge */}
-            <div className="flex items-center justify-between gap-2 mb-3">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200/80">
-                <CategoryIcon className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                <span className="truncate max-w-[120px]">{notice.category}</span>
+            <div className="flex items-center justify-between gap-2 mb-3.5">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-800 border border-slate-200/80">
+                <CategoryIcon className="w-3.5 h-3.5 text-slate-600 shrink-0" />
+                <span className="truncate max-w-[130px]">{notice.category}</span>
               </span>
 
               <span
-                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${getPriorityBadgeClass()}`}
+                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${getPriorityBadgeClass()}`}
               >
                 {isHappeningToday && (
                   <span
                     aria-hidden="true"
-                    className="w-1.5 h-1.5 rounded-full bg-rose-500 urgent-pulse"
+                    className="w-2 h-2 rounded-full bg-rose-500 urgent-pulse"
                   />
                 )}
                 <span>{priority.label}</span>
@@ -105,36 +105,36 @@ export const CueCard: React.FC<CueCardProps> = ({ notice, todayStr, onDelete }) 
             </div>
 
             {/* Event Title */}
-            <h3 className="text-lg font-semibold text-slate-900 tracking-tight line-clamp-2 mb-3 leading-snug group-hover:text-blue-600 transition-colors">
+            <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight line-clamp-2 mb-3 leading-snug group-hover:text-blue-600 transition-colors">
               {notice.title}
             </h3>
           </div>
 
           <div>
             {/* Metadata Grid: Date, Time, Venue */}
-            <div className="space-y-1.5 text-xs text-slate-600 pt-2 border-t border-slate-100">
-              <div className="flex items-center gap-2">
-                <Calendar className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-                <span className="font-medium text-slate-700">
+            <div className="space-y-2 text-sm text-slate-600 pt-3 border-t border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <Calendar className="w-4 h-4 text-blue-600 shrink-0" />
+                <span className="font-semibold text-slate-800 truncate">
                   {formatFriendlyDate(notice.date, todayStr)}
                   {notice.date ? ` (${notice.date})` : ''}
                 </span>
               </div>
-              <div className="flex items-center gap-2">
-                <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                <span className="truncate">{notice.time || 'TBA'}</span>
+              <div className="flex items-center gap-2.5 text-slate-600">
+                <Clock className="w-4 h-4 text-slate-400 shrink-0" />
+                <span className="truncate font-medium">{notice.time || 'TBA'}</span>
               </div>
-              <div className="flex items-center gap-2">
-                <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                <span className="truncate">{notice.venue || 'Campus'}</span>
+              <div className="flex items-center gap-2.5 text-slate-600">
+                <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
+                <span className="truncate font-medium">{notice.venue || 'Campus'}</span>
               </div>
             </div>
 
-            {/* Subtle Footer Flip Prompt */}
-            <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400 font-medium">
-              <span className="flex items-center gap-1 text-blue-600 font-medium">
-                <RotateCw className="w-3 h-3" />
-                Click to flip for summary & rules ↻
+            {/* Footer Flip Prompt */}
+            <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400 font-medium">
+              <span className="flex items-center gap-1.5 text-blue-600 font-semibold hover:text-blue-700">
+                <RotateCw className="w-3.5 h-3.5" />
+                Tap to flip for rules & summary ↻
               </span>
               {notice.date && (
                 <a
@@ -144,9 +144,9 @@ export const CueCard: React.FC<CueCardProps> = ({ notice, todayStr, onDelete }) 
                   onClick={(e) => e.stopPropagation()}
                   title="Add to Google Calendar"
                   aria-label="Add to Google Calendar"
-                  className="p-1 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600"
+                  className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600"
                 >
-                  <CalendarPlus className="w-3.5 h-3.5" />
+                  <CalendarPlus className="w-4 h-4" />
                 </a>
               )}
             </div>
@@ -154,37 +154,37 @@ export const CueCard: React.FC<CueCardProps> = ({ notice, todayStr, onDelete }) 
         </div>
 
         {/* ================= BACK FACE ================= */}
-        <div className="absolute inset-0 backface-hidden rotate-y-180 w-full h-full bg-blue-50/40 rounded-2xl border border-blue-200/90 shadow-sm p-5 flex flex-col justify-between text-slate-900">
-          <div className="overflow-y-auto pr-1 space-y-2.5">
+        <div className="absolute inset-0 backface-hidden rotate-y-180 w-full h-full bg-blue-50/50 rounded-2xl border border-blue-200/90 shadow-sm p-5 flex flex-col justify-between text-slate-900">
+          <div className="overflow-y-auto pr-1 space-y-3">
             {/* Header */}
-            <div className="flex items-center justify-between pb-1.5 border-b border-blue-200/60">
-              <span className="text-xs font-semibold text-blue-800 uppercase tracking-wider">
-                Event Details & Rules
+            <div className="flex items-center justify-between pb-2 border-b border-blue-200/60">
+              <span className="text-xs font-bold text-blue-900 uppercase tracking-wider">
+                Event Summary & Rules
               </span>
-              <span className="text-[11px] text-slate-500 font-medium">
+              <span className="text-xs font-semibold text-slate-500">
                 {notice.category}
               </span>
             </div>
 
             {/* Concise AI Summary */}
-            <p className="text-xs text-slate-700 leading-relaxed bg-white/80 p-2.5 rounded-xl border border-blue-100">
+            <p className="text-sm text-slate-800 leading-relaxed bg-white/90 p-3 rounded-xl border border-blue-100/80 shadow-2xs">
               {notice.summary}
             </p>
 
             {/* Important Rules Checklist */}
             {notice.importantRules && notice.importantRules.length > 0 && (
-              <div className="space-y-1">
-                <div className="text-[11px] font-semibold text-slate-600">
-                  Key Rules to Note:
+              <div className="space-y-1.5">
+                <div className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                  Important Rules:
                 </div>
-                <ul className="space-y-1">
+                <ul className="space-y-1.5">
                   {notice.importantRules.map((rule, idx) => (
                     <li
                       key={idx}
-                      className="text-xs text-slate-700 flex items-start gap-1.5"
+                      className="text-sm text-slate-700 flex items-start gap-2"
                     >
-                      <span className="w-1.5 h-1.5 rounded-full bg-blue-600 mt-1.5 shrink-0" />
-                      <span className="line-clamp-2">{rule}</span>
+                      <span className="w-2 h-2 rounded-full bg-blue-600 mt-1.5 shrink-0" />
+                      <span className="leading-snug">{rule}</span>
                     </li>
                   ))}
                 </ul>
@@ -193,7 +193,7 @@ export const CueCard: React.FC<CueCardProps> = ({ notice, todayStr, onDelete }) 
           </div>
 
           {/* Back Face Actions */}
-          <div className="pt-2 border-t border-blue-200/60 flex items-center justify-between">
+          <div className="pt-2.5 border-t border-blue-200/60 flex items-center justify-between">
             <button
               type="button"
               onClick={(e) => {
@@ -201,9 +201,9 @@ export const CueCard: React.FC<CueCardProps> = ({ notice, todayStr, onDelete }) 
                 setIsFlipped(false);
               }}
               aria-label="Flip card back to front"
-              className="inline-flex items-center gap-1 text-xs font-medium text-slate-600 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600 rounded-lg px-2 py-1"
+              className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-700 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600 rounded-lg px-2.5 py-1.5"
             >
-              <RotateCcw className="w-3 h-3" />
+              <RotateCcw className="w-3.5 h-3.5" />
               Flip back ↺
             </button>
 
@@ -215,9 +215,9 @@ export const CueCard: React.FC<CueCardProps> = ({ notice, todayStr, onDelete }) 
               }}
               aria-label={`Delete notice ${notice.title}`}
               title="Delete notice"
-              className="inline-flex items-center gap-1 text-xs font-medium text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg px-2.5 py-1 transition-colors focus:outline-none focus:ring-2 focus:ring-rose-500"
+              className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg px-3 py-1.5 transition-colors focus:outline-none focus:ring-2 focus:ring-rose-500"
             >
-              <Trash2 className="w-3.5 h-3.5" />
+              <Trash2 className="w-4 h-4" />
               Delete
             </button>
           </div>
