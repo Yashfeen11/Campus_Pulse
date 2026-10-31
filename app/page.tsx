@@ -6,7 +6,10 @@ import { AssistantSidebar } from '@/components/AssistantSidebar';
 import { MainWorkspace } from '@/components/MainWorkspace';
 import { Sparkles } from 'lucide-react';
 
-export default function CampusPulsePage() {
+/**
+ * Root page orchestrating the 2-column layout for the AI Assistant and Cue Card Workspace
+ */
+export default function CampusPulsePage(): React.JSX.Element {
   const {
     notices,
     isMounted,
@@ -16,7 +19,7 @@ export default function CampusPulsePage() {
   } = useNotices();
 
   // Browser calculates local date (YYYY-MM-DD) in user's local timezone
-  const todayStr = useMemo(() => {
+  const todayStr = useMemo((): string => {
     const d = new Date();
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -24,20 +27,20 @@ export default function CampusPulsePage() {
     return `${year}-${month}-${day}`;
   }, []);
 
-  // Hydration safety: render clean minimalist loading state before client mounts
+  // Hydration safety: render clean warm editorial loading state before client mounts
   if (!isMounted) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-slate-400">
-        <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-3 animate-pulse">
+      <div className="min-h-screen bg-[#FAF8F5] flex flex-col items-center justify-center p-6 text-stone-400">
+        <div className="w-10 h-10 rounded-2xl bg-orange-100 text-orange-700 flex items-center justify-center mb-3 animate-pulse">
           <Sparkles className="w-5 h-5" />
         </div>
-        <p className="text-xs font-medium text-slate-500">Loading Campus Pulse...</p>
+        <p className="text-sm font-medium text-stone-600 font-heading">Loading Campus Pulse...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
+    <main className="min-h-screen bg-[#FAF8F5] text-stone-900">
       {/* 2-Column Responsive Workspace */}
       <div className="max-w-7xl mx-auto p-3 sm:p-4 lg:p-6 min-h-screen">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -61,6 +64,6 @@ export default function CampusPulsePage() {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

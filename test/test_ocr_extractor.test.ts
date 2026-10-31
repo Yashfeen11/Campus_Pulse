@@ -14,7 +14,6 @@ describe('OCR text notice extraction on check_image.jpeg', () => {
     expect(ocrText).toContain('MORADABAD');
 
     const notice = extractNoticeLocally(ocrText, '2026-10-31');
-    console.log('EXTRACTED NOTICE FROM check_image.jpeg:', notice);
 
     expect(notice.title).toContain('Voyager');
     expect(notice.title).toContain('Moradabad Institute of Technology');

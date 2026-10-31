@@ -40,7 +40,10 @@ const summaryResponseSchema = {
   ],
 };
 
-export async function POST(req: NextRequest) {
+/**
+ * Handles weekly campus digest synthesis requests
+ */
+export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     // 1. Rate Limiting Check (10 requests per minute per IP)
     const forwarded = req.headers.get('x-forwarded-for');
@@ -182,8 +185,8 @@ Synthesize a high-impact, easy-to-read weekly digest structured into:
           summary: verifiedSummary,
           source: geminiResult.modelUsed,
         });
-      } catch (parseError) {
-        console.warn('[API /api/summary] Gemini JSON parse failed, using local synthesizer:', parseError);
+      } catch {
+        // Fallback to local digest
       }
     }
 
@@ -194,8 +197,7 @@ Synthesize a high-impact, easy-to-read weekly digest structured into:
       summary: localSummary,
       source: 'smart-local-fallback',
     });
-  } catch (err: unknown) {
-    console.error('Unhandled error in /api/summary:', err);
+  } catch {
     const localFallback = generateWeeklySummaryLocally([], new Date().toISOString().slice(0, 10));
     return NextResponse.json({
       success: true,

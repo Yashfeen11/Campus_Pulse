@@ -24,8 +24,7 @@ export async function extractTextFromImage(base64Data: string): Promise<string> 
         .normalize()
         .sharpen()
         .toBuffer();
-    } catch (sharpError) {
-      console.warn('[OCR Engine] Sharp preprocessing skipped, using raw buffer:', sharpError);
+    } catch {
       processedBuffer = rawBuffer;
     }
 
@@ -34,8 +33,7 @@ export async function extractTextFromImage(base64Data: string): Promise<string> 
     const extractedText = result?.data?.text ? result.data.text.trim() : '';
 
     return extractedText;
-  } catch (error) {
-    console.error('[OCR Engine] Error extracting text from image:', error);
+  } catch {
     return '';
   } finally {
     if (worker) {

@@ -1,21 +1,8 @@
+import { MODEL_FALLBACK_CHAIN } from '@/lib/constants';
+
 /**
- * Central Gemini Multi-Model Runner with Resilient Auto-Fallback
- * Calls direct REST endpoints to eliminate SDK version conflicts and gracefully
- * handles 429 quota exhaustion, 402 credit exhaustion, 404 model not found, and 503 overload.
+ * Interface representing a multimodal content part for Gemini REST API
  */
-
-export const MODEL_FALLBACK_CHAIN = [
-  'gemini-2.5-flash',
-  'gemini-2.5-flash-lite',
-  'gemini-2.0-flash',
-  'gemini-2.0-flash-lite',
-  'gemini-1.5-flash',
-  'gemini-3.8-flash',
-  'gemini-3.7-flash',
-  'gemini-flash-latest',
-  'gemini-flash-lite-latest',
-];
-
 export interface GeminiContentPart {
   text?: string;
   inlineData?: {
@@ -24,6 +11,9 @@ export interface GeminiContentPart {
   };
 }
 
+/**
+ * Parameters for executing a Gemini API request with auto-fallback
+ */
 export interface GeminiRunnerParams {
   contents: Array<{
     parts: GeminiContentPart[];
@@ -33,11 +23,18 @@ export interface GeminiRunnerParams {
   responseMimeType?: string;
 }
 
+/**
+ * Return type indicating extracted text and successful model
+ */
 export interface GeminiRunnerResult {
   text: string;
   modelUsed: string;
 }
 
+/**
+ * Executes a Gemini generative request over the prioritized fallback chain
+ * Returns parsed text result or null to delegate to local parser
+ */
 export async function runGeminiWithFallback(
   params: GeminiRunnerParams
 ): Promise<GeminiRunnerResult | null> {
@@ -49,7 +46,6 @@ export async function runGeminiWithFallback(
   const apiKey = rawKey.replace(/^\[|\]$/g, '').trim();
 
   if (!apiKey) {
-    console.warn('[Gemini Runner] No GEMINI_API_KEY found. Falling back to local extractor.');
     return null;
   }
 
@@ -94,19 +90,10 @@ export async function runGeminiWithFallback(
           };
         }
       }
-
-      // Log specific HTTP status warning and proceed to next model in chain
-      const errorBody = await res.text().catch(() => '');
-      console.warn(
-        `[Gemini Runner] Model ${model} returned HTTP ${res.status}. Falling back to next available model. (${errorBody.slice(0, 100)})`
-      );
-    } catch (networkError) {
-      console.warn(`[Gemini Runner] Network error calling ${model}:`, networkError);
+    } catch {
+      // Gracefully continue to next model in fallback chain
     }
   }
 
-  console.warn(
-    '[Gemini Runner] All models in fallback chain were unavailable. Gracefully delegating to local extractor.'
-  );
   return null;
 }

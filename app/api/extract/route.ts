@@ -6,21 +6,14 @@ import { checkRateLimit } from '@/lib/rateLimit';
 import { runGeminiWithFallback } from '@/lib/gemini';
 import { extractNoticeLocally } from '@/lib/localExtractor';
 import { extractTextFromImage } from '@/lib/ocr';
+import {
+  ALLOWED_CATEGORIES,
+  ALLOWED_IMAGE_MIMES,
+  MAX_IMAGE_SIZE_BYTES,
+} from '@/lib/constants';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-
-const ALLOWED_CATEGORIES: NoticeCategory[] = [
-  'Academic',
-  'Cultural',
-  'Placement',
-  'Sports',
-  'Workshop',
-  'General',
-  'Urgent Announcement',
-];
-
-const ALLOWED_IMAGE_MIMES = ['image/jpeg', 'image/png', 'image/webp'];
 
 const noticeResponseSchema = {
   type: 'OBJECT',
@@ -44,7 +37,7 @@ const noticeResponseSchema = {
     },
     category: {
       type: 'STRING',
-      enum: ALLOWED_CATEGORIES,
+      enum: [...ALLOWED_CATEGORIES],
       description: 'The most appropriate category matching the notice contents',
     },
     importantRules: {
@@ -60,7 +53,10 @@ const noticeResponseSchema = {
   required: ['title', 'time', 'venue', 'category', 'importantRules', 'summary'],
 };
 
-export async function POST(req: NextRequest) {
+/**
+ * Handles multimodal AI extraction from notice text or uploaded poster images
+ */
+export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     // 1. Rate Limiting Check (10 requests per minute per IP)
     const forwarded = req.headers.get('x-forwarded-for');
@@ -157,8 +153,8 @@ export async function POST(req: NextRequest) {
     if (validBase64) {
       try {
         ocrText = await extractTextFromImage(validBase64);
-      } catch (ocrError) {
-        console.warn('[API /api/extract] OCR processing warning:', ocrError);
+      } catch {
+        // Safe fallback
       }
     }
 
@@ -264,8 +260,8 @@ Your task:
           notice,
           source: geminiResult.modelUsed,
         });
-      } catch (parseError) {
-        console.warn('[API /api/extract] Gemini JSON parse failed, using smart local extractor:', parseError);
+      } catch {
+        // Fallback gracefully to smart deterministic extractor
       }
     }
 
@@ -278,8 +274,7 @@ Your task:
       notice: localNotice,
       source: 'smart-local-fallback',
     });
-  } catch (err: unknown) {
-    console.error('Unhandled server error in /api/extract:', err);
+  } catch {
     const fallbackNotice = extractNoticeLocally('Campus Event Notice', new Date().toISOString().slice(0, 10));
     return NextResponse.json({
       success: true,

@@ -6,7 +6,22 @@ import { generateSeedNotices } from '@/lib/seedData';
 
 const STORAGE_KEY = 'campus_pulse_notices_v2';
 
-export function useNotices() {
+/**
+ * Custom hook interface for managing client-side notice deck state and persistence
+ */
+export interface UseNoticesResult {
+  notices: NoticeItem[];
+  isMounted: boolean;
+  addNotice: (newNotice: NoticeItem) => void;
+  deleteNotice: (id: string) => void;
+  resetToSeed: () => void;
+  clearAll: () => void;
+}
+
+/**
+ * Hydration-safe React hook for campus notice state persisted to localStorage
+ */
+export function useNotices(): UseNoticesResult {
   const [notices, setNotices] = useState<NoticeItem[]>([]);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -26,31 +41,30 @@ export function useNotices() {
       const initialSeed = generateSeedNotices(new Date());
       setNotices(initialSeed);
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(initialSeed));
-    } catch (err) {
-      console.error('Error accessing localStorage:', err);
+    } catch {
       // Fallback in memory
       setNotices(generateSeedNotices(new Date()));
     }
   }, []);
 
   // Save changes to localStorage when notices change (only if mounted)
-  const saveNotices = useCallback((updated: NoticeItem[]) => {
+  const saveNotices = useCallback((updated: NoticeItem[]): void => {
     setNotices(updated);
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    } catch (err) {
-      console.error('Failed to save notices to localStorage:', err);
+    } catch {
+      // Safe fallback
     }
   }, []);
 
   const addNotice = useCallback(
-    (newNotice: NoticeItem) => {
+    (newNotice: NoticeItem): void => {
       setNotices((prev) => {
         const updated = [newNotice, ...prev];
         try {
           window.localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-        } catch (e) {
-          console.error(e);
+        } catch {
+          // Safe fallback
         }
         return updated;
       });
@@ -58,24 +72,24 @@ export function useNotices() {
     []
   );
 
-  const deleteNotice = useCallback((id: string) => {
+  const deleteNotice = useCallback((id: string): void => {
     setNotices((prev) => {
       const updated = prev.filter((item) => item.id !== id);
       try {
         window.localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-      } catch (e) {
-        console.error(e);
+      } catch {
+        // Safe fallback
       }
       return updated;
     });
   }, []);
 
-  const resetToSeed = useCallback(() => {
+  const resetToSeed = useCallback((): void => {
     const fresh = generateSeedNotices(new Date());
     saveNotices(fresh);
   }, [saveNotices]);
 
-  const clearAll = useCallback(() => {
+  const clearAll = useCallback((): void => {
     saveNotices([]);
   }, [saveNotices]);
 
