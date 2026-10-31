@@ -16,8 +16,13 @@ describe('OCR text notice extraction on check_image.jpeg', () => {
     const notice = extractNoticeLocally(ocrText, '2026-10-31');
     console.log('EXTRACTED NOTICE FROM check_image.jpeg:', notice);
 
-    expect(notice.title).toMatch(/magazine|voyager|moradabad/i);
+    expect(notice.title).toContain('Voyager');
+    expect(notice.title).toContain('Moradabad Institute of Technology');
     expect(notice.category).toBe('Cultural');
-    expect(notice.importantRules.length).toBeGreaterThan(0);
+    expect(notice.date).toBe('2026-11-20');
+    expect(notice.venue).toBe('Moradabad Institute of Technology');
+    expect(notice.importantRules.some((r) => r.includes('mitvoyager1@gmail.com'))).toBe(true);
+    expect(notice.importantRules.some((r) => r.includes('9719046255'))).toBe(true);
   }, 30000);
 });
+

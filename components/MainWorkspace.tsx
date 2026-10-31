@@ -143,7 +143,6 @@ export const MainWorkspace: React.FC<MainWorkspaceProps> = ({
 
   return (
     <section aria-label="Unified Cue Card Workspace" className="space-y-5">
-    <section aria-label="Unified Cue Card Workspace" className="space-y-5">
       {/* ================= 1. Top Control Bar & View Switcher ================= */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-2.5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         {/* View Switcher Tabs */}
